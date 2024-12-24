@@ -1,0 +1,13 @@
+langchain==0.2.16
+langchain-community==0.2.16
+langchain-core==0.2.38
+langchain-google-genai==1.0.10
+langchain-groq==0.1.9
+langchain-text-splitters==0.2.4
+Flask==3.0.3
+python-dotenv==1.0.1
+pypdf==4.3.1
+PyPDF2==3.0.1
+faiss-cpu==1.8.0.post1
+flask-pymongo
+Flask-Mail

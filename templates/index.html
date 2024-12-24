@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HR Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #4caf50;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        .header-container h1 {
+            margin: 0;
+        }
+
+        .logout-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            background-color: #f4f4f4;
+            overflow: hidden;
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .user,
+        .bot {
+            font-weight: bold;
+            color: #333;
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .input-container input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .input-container button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #4caf50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .input-container button:hover {
+            background-color: #45a049;
+        }
+
+        .loader {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            z-index: 1000;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .suggestions-container {
+            left: auto; /* Remove any left alignment */
+            z-index: 100;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none; /* Initially hidden */
+            max-height: 200px; /* Optional: limit the height of the suggestions box */
+            overflow-y: auto; /* Adds scroll if the suggestions exceed max height */
+        }
+        #email-list {
+            left: auto; /* Remove any left alignment */
+            z-index: 100;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none; /* Initially hidden */
+            max-height: 200px; /* Optional: limit the height of the suggestions box */
+            overflow-y: auto; /* Adds scroll if the suggestions exceed max height */
+        }
+        
+
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <h1>HR Bot</h1>
+        <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            {% for q, a in messages %}
+            <div class="message"><span class="user">You:</span> {{ q }}</div>
+            <div class="message"><span class="bot">HR Bot:</span> {{ a|safe }}</div>
+            {% endfor %}
+        </div>
+        <div id="email-list"></div>
+        <div id="suggestionsContainer" class="suggestions-container"></div>
+        <form method="post" class="input-container" onsubmit="showLoader()">
+            <input type="text" id="question" name="question" placeholder="Type your question here..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <!-- Loader element -->
+    <div class="loader" id="loader"></div>
+
+    <script>
+        let currentSuggestions = {};
+        const input = document.getElementById('question');
+
+        document.querySelector("form").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevents form's default submission
+            showLoader();           // Show the loader
+            this.submit();          // Proceeds with the form submission
+        });
+    
+        document.getElementById("question").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") { 
+                event.preventDefault();
+                showLoader();
+                document.querySelector("form").submit();
+            }
+        });
+    
+        function showLoader() {
+            document.getElementById("loader").style.display = "block";
+        }
+    
+        document.querySelector("form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            showLoader();  // Show the loader on submit
+            this.submit(); // Proceed with form submission
+        });
+
+
+        
+    </script>
+</body>
+</html>
+
