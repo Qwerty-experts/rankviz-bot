@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -125,90 +126,153 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
-        .suggestions-container {
-            left: auto; /* Remove any left alignment */
-            z-index: 100;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: none; /* Initially hidden */
-            max-height: 200px; /* Optional: limit the height of the suggestions box */
-            overflow-y: auto; /* Adds scroll if the suggestions exceed max height */
+        .message-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
-        #email-list {
-            left: auto; /* Remove any left alignment */
-            z-index: 100;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: none; /* Initially hidden */
-            max-height: 200px; /* Optional: limit the height of the suggestions box */
-            overflow-y: auto; /* Adds scroll if the suggestions exceed max height */
-        }
-        
 
+        .message ul {
+            margin-left: 20px;
+            list-style-type: disc;
+        }
+
+        .message li {
+            margin-bottom: 5px;
+        }
     </style>
 </head>
+
 <body>
     <div class="header-container">
-        <h1>HR Bot</h1>
         <button class="logout-button" onclick="logout()">Logout</button>
     </div>
     <div class="chat-container">
         <div class="chat-box" id="chat-box">
             {% for q, a in messages %}
-            <div class="message"><span class="user">You:</span> {{ q }}</div>
-            <div class="message"><span class="bot">HR Bot:</span> {{ a|safe }}</div>
+            <div class="message">
+                <span class="user">You:</span>
+                <div class="message-content">{{ q }}</div>
+            </div>
+            <div class="message">
+                <span class="bot">HR Bot:</span>
+                <div class="message-content">{{ a|safe }}</div>
+            </div>
             {% endfor %}
         </div>
-        <div id="email-list"></div>
-        <div id="suggestionsContainer" class="suggestions-container"></div>
-        <form method="post" class="input-container" onsubmit="showLoader()">
+
+        <div class="input-container" id="input-container">
             <input type="text" id="question" name="question" placeholder="Type your question here..." required>
-            <button type="submit">Send</button>
-        </form>
+            <button id="submit-button">Send</button>
+        </div>
     </div>
 
-    <!-- Loader element -->
     <div class="loader" id="loader"></div>
 
     <script>
-        let currentSuggestions = {};
-        const input = document.getElementById('question');
+        const chatBox = document.getElementById('chat-box');
+        let input = document.getElementById('question');
+        const submitButton = document.getElementById('submit-button');
+        const loader = document.getElementById('loader');
 
-        document.querySelector("form").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevents form's default submission
-            showLoader();           // Show the loader
-            this.submit();          // Proceeds with the form submission
-        });
-    
-        document.getElementById("question").addEventListener("keydown", function(event) {
-            if (event.key === "Enter") { 
-                event.preventDefault();
+        function showLoader() {
+            loader.style.display = 'block';
+        }
+
+        function hideLoader() {
+            loader.style.display = 'none';
+        }
+
+        function addMessage(type, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            const span = document.createElement('span');
+            span.className = type;
+            span.textContent = type === 'user' ? 'You:' : 'HR Bot:';
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = content;
+
+            messageDiv.appendChild(span);
+            messageDiv.appendChild(contentDiv);
+            chatBox.appendChild(messageDiv);
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+
+        submitButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            const question = input.value.trim();
+            if (question) {
+                addMessage('user', question);
                 showLoader();
-                document.querySelector("form").submit();
+                fetch('/chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: question })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        addMessage('bot', data.response);
+                        input.value = '';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        addMessage('bot', 'Sorry, there was an error processing your request.');
+                    })
+                    .finally(() => {
+                        hideLoader();
+                        input.focus();
+                    });
             }
         });
-    
-        function showLoader() {
-            document.getElementById("loader").style.display = "block";
-        }
-    
-        document.querySelector("form").addEventListener("submit", function(event) {
-            event.preventDefault();
-            showLoader();  // Show the loader on submit
-            this.submit(); // Proceed with form submission
+
+
+        input.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+
+                const question = input.value.trim();
+                if (question) {
+                    addMessage('user', question);
+                    showLoader();
+
+                    fetch('/chatbot', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ question: question })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            addMessage('bot', data.response);
+                            input.value = '';
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            addMessage('bot', 'Sorry, there was an error processing your request.');
+                        })
+                        .finally(() => {
+                            hideLoader();
+                            input.focus();
+                        });
+                }
+            }
         });
 
+        function logout() {
+            window.location.href = '/logout';
+        }
 
-        
     </script>
 </body>
-</html>
 
+</html>

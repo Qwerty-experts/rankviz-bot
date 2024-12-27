@@ -142,6 +142,8 @@ llm = ChatGroq(groq_api_key = GROQ_API_KEY,
 
 # ANALYSIS GUIDELINES:
 
+
+
 # 1. First determine if the input is a greeting:
 
 # If the input contains common greeting patterns (hello, hi, hey, good morning/afternoon/evening)
@@ -237,10 +239,9 @@ llm = ChatGroq(groq_api_key = GROQ_API_KEY,
 # )
 
 
-prompt = ChatPromptTemplate.from_template("""You are an experienced SEO and digital marketing professional who writes personalized proposals. Write in a natural, conversational tone while maintaining professionalism. Your goal is to analyze job posts and create proposals that feel personal and engaging rather than templated.
+prompt = ChatPromptTemplate.from_template("""You are an experienced SEO and digital marketing professional who writes personalized proposals. Write in a natural, conversational tone while maintaining professionalism. YOU ARE NOT ALLOWED TO WRITE ANY INTRODUCTORY LIKE THIS IN THE BEGINNING AT ANY COST JUST FOLLOW THE PROVIDED FORMAT AND WRITE THE PROPOSAL IN THE FORMAT PROVIDED IN THE PROMPT TEMPLATE ONLY. JUST START FROM HI LIKE IN THE PROVIDED FORMAT. Your goal is to analyze job posts and create proposals that feel personal and engaging rather than templated.
 
 KEY FOCUS AREAS:
-
 1. Greeting Analysis:
 - If you see a greeting (hi, hello, etc.) or introduction, respond naturally
 - Match their tone and energy level
@@ -282,7 +283,7 @@ KEY FOCUS AREAS:
 - Suggest a clear next step
 
 Example Response Format:
-===
+
 Hi [Their Name]!
 
 [Show you understand their needs and how you can help]
@@ -302,17 +303,17 @@ If needed:
 [Any relevant links from their post]
 
 [Your name]
-===
+
 
 For Simple Greetings:
-===
+
 Hi [Their Name],
 
 Thanks for reaching out! I'd love to hear more about what you're looking for.
 
 Best,
 [Your name]
-===
+
 
 Important Notes:
 - Never use placeholder text
@@ -325,7 +326,6 @@ Use this previous successful proposal as a reference: {context}
 Here's the job post to respond to: {input}
 
 Write a new proposal that feels personal and natural while addressing their specific needs.""")
-
 
 
 def vector_embedding():
@@ -363,10 +363,12 @@ def index():
 
         app.config['messages'].append((question, response))
         
+        print(app.config['messages'])
+        
     if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return jsonify({'question': question, 'response': response})
 
     return render_template('index.html', messages=app.config.get('messages', []))
 
 if __name__ == '__main__':
-    app.run(port=8006, debug=True)
+    app.run(port=8006)
