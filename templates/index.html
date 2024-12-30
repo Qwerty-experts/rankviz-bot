@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HR Bot</title>
+    <title>Bot</title>
     <style>
         * {
             margin: 0;
@@ -196,7 +196,7 @@
             messageDiv.className = 'message';
             const span = document.createElement('span');
             span.className = type;
-            span.textContent = type === 'user' ? 'You:' : 'HR Bot:';
+            span.textContent = type === 'user' ? 'You:' : 'Bot:';
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
             contentDiv.innerHTML = content;

@@ -239,7 +239,7 @@ llm = ChatGroq(groq_api_key = GROQ_API_KEY,
 # )
 
 
-prompt = ChatPromptTemplate.from_template("""You are an experienced SEO and digital marketing professional specializing in crafting personalized, professional, and engaging proposals. Your task is to write proposals that are client-focused, natural, and tailored to each job post. Use the provided case studies and data dynamically while avoiding repetitive structures and robotic language.
+prompt = ChatPromptTemplate.from_template("""You are an experienced SEO and digital marketing professional specializing in crafting personalized, professional, and engaging proposals. Your task is to write proposals that are client-focused, natural, and tailored to each job post. Use the provided case studies and data dynamically while avoiding repetitive structures and robotic language and donot use headings and email formats.
 
 ---
 
