@@ -163,7 +163,7 @@
                 <div class="message-content">{{ q }}</div>
             </div>
             <div class="message">
-                <span class="bot">HR Bot:</span>
+                <span class="bot">Bot:</span>
                 <div class="message-content">{{ a|safe }}</div>
             </div>
             {% endfor %}
@@ -208,7 +208,6 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-
         submitButton.addEventListener('click', function (event) {
             event.preventDefault();
             const question = input.value.trim();
@@ -235,7 +234,6 @@
                     });
             }
         });
-
 
         input.addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
