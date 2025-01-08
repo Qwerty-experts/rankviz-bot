@@ -15,6 +15,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 import uuid
 from langchain_core.messages import HumanMessage
+import jwt
 load_dotenv()
 
 app=Flask(__name__)
@@ -39,6 +40,13 @@ app.secret_key = "supersecretkey"
 mongo = PyMongo(app)
 mail = Mail(app)
 
+def generate_token(user):
+    payload = {
+        'email': user['email'],
+        'time': time.time()
+    }
+    return jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+
 @app.route('/')
 def home():
     return render_template('login.html')
@@ -52,6 +60,8 @@ def login():
     user = mongo.db.users.find_one({'email': email})
     if user and check_password_hash(user['password'], password):
         session['email'] = email
+        session['token'] = generate_token(user)
+        print('current_token is ',session['token'])
         return redirect(url_for('index'))
     else:
         flash('Invalid username or password.')
@@ -59,6 +69,7 @@ def login():
 
 @app.route('/logout')
 def logout():
+    session['token'] = None
     flash('You have been logged out.')
     return redirect(url_for('home'))
 
@@ -72,7 +83,7 @@ def forgot_password():
             # Generate a token
             token = str(uuid.uuid4())
             mongo.db.password_reset_tokens.insert_one({
-                'email': email,  # Store the token with the email
+                'email': email,  
                 'token': token,
             })
 
@@ -460,6 +471,57 @@ You have access to a dataset of 50+ proposals with case studies, success stories
 
 ---
 
+### ** Metrics **
+-- Sample Seo Metrics: ORGANIC traffic by 600% and keyword positions by around 300%
+-- Success Stories: 600% organic growth, 110 keywords in the Top 3
+-- Backlinks & Local SEO: Mixed Backlinks, Guest Posts, Local Citations : Website traffic has improved by 107K 
+
+
+#### **2. Resource Links**
+Use these links dynamically based on job requirements:
+
+**Sample SEO Audits:**
+- UniPrint SEO Audit (600% organic traffic increase): https://bit.ly/3L2710d
+- Process Fusion SEO Audit (300% keyword position improvement): https://bit.ly/3XJqKt4
+
+**Success Stories:**
+- SaaS Success Story (Resimpl, 600% organic growth): https://bit.ly/3StIZPL
+- Ecommerce Success Story (Fleming & Howland): https://bit.ly/45EoiGp
+- Local Success Story (Fast Labour Hire): https://bit.ly/3zovcUc
+- Local GMB Success Story (Mosic): https://bit.ly/49zWoNO
+- SaaS Success Story (Uniprint): https://bit.ly/3VG5jqi
+- Blog Website Success Story (Tarotoo): https://bit.ly/3zekcbG
+
+**Content Samples:**
+- Premium Content Samples (Rankviz): https://bit.ly/3WAlxS7
+- New Content Writing Samples: https://bit.ly/4cvGEM4
+- Old Content Writing Samples: https://bit.ly/3WAlxS7
+
+**Keyword Research:**
+- Topics/Keyword Research: https://bit.ly/3sgk2dc
+- Keyword Gap Analysis: https://bit.ly/3lAaeaw
+
+**Backlink Samples / Link Building:**
+- Mixed Type Backlinks: https://bit.ly/3gkuGtD
+- Live Guest Posts (Multi-Niche): https://bit.ly/3s7LUkj
+- White Hat High DR Guest Posts: https://bit.ly/3oMU82h
+- Link Exchange Samples: https://bit.ly/3XSR9Bs
+- Citations Sample: https://bit.ly/3EXO3m4
+
+**Local SEO:**
+- Local SEO Citation and GMB Samples: https://bit.ly/3X9WA0e
+
+**Portfolios:**
+- Web Development Portfolio: https://bit.ly/3xCrUMw
+- Redirection and Migration: https://bit.ly/4blbUwe
+
+**Websites Managed:**
+- Fast Labour Hire: http://fastlabourhire.com.au
+- UniPrint: https://uniprint.net/
+- Process Fusion: https://processfusion.com/
+- Eden Derma: https://edenderma.com
+- Fleming Howland: https://fleminghowland.com/
+
 ### **Sample Proposal Format (for reference)**
 
 **Job Post:**  
@@ -477,6 +539,8 @@ Let's connect to discuss a tailored strategy that drives consistent traffic and 
 2. **Pain Point & Solution Focus:** Align the proposal with the client's specific needs.
 3. **Use of Training Data:** Dynamically integrate success stories, Bitly links, and portfolio URLs.
 4. **Professional and Concise:** Keep proposals short, focused, and results-driven.
+5. **Links: ** Use the Links that are provided in the prompt and avoid using any other links.
+6. **Metrics Usage: ** Use the metrics that are provided in the prompt and avoid using any other metrics.
 
 Use this previous successful proposal as a reference: {context}
 Here's the job post to respond to: {input}
@@ -495,11 +559,17 @@ def vector_embedding():
         app.config['vectors'] = FAISS.from_documents(app.config['final_documents'],app.config['embeddings'])
 
 
-vector_embedding()  # Initialize embeddings
+vector_embedding()  
 
 # Route for the homepage
 @app.route('/chatbot', methods=['GET', 'POST'])
 def index():
+    token = session['token']
+    print('current_token in chatbot is: ',token)
+    if token is None:
+        flash('You are not authorized to access this page.')
+        return redirect(url_for('home'))
+
     if 'messages' not in app.config:
         app.config['messages'] = []
 
