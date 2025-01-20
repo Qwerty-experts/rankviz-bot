@@ -155,6 +155,18 @@ prompt = ChatPromptTemplate.from_template("""You are an experienced SEO and digi
 Job post:{input}
 Previous Context(if any):{context}
 
+CRITICAL RULES:
+1. NEVER use phrases like "I'm thrilled," "I'm excited", "As a seasoned SEO professional" or any similar enthusiasm expressions
+2. Only use case studies and portfolio examples explicitly provided below
+3. Make it short
+
+
+Opening Alternatives (Use these instead of "I'm thrilled," "I'm excited, "As a seasoned SEO professional"):
+- "Based on your requirements..."
+- "After reviewing your project needs..."
+- "Your project aligns perfectly with..."
+- "Having analyzed your requirements..."
+
 Key Guidelines:
 Guidelines:
 1. Write a natural, conversational proposal of 150-200 words and donot use workds like "I'd be thrilled" or "I am excited" Instead, vary the introduction to feel fresh and client-specific.
@@ -231,10 +243,15 @@ Available Resources:
 Remember to:
 - Keep the tone professional but conversational
 - Use only provided metrics and links
-- Avoid generic phrases and repetitive structures
+- Avoid generic phrases and repetitive structures like "I'd be thrilled" or "I am excited"
 - Focus on client's specific needs and industry
 - Do not use email formatting or headers
 - Write in a flowing, natural paragraph style
+- Please follow the criteria
+- Please stick to the output
+- Do not include any additional information that is not provided in the prompt
+- Do not include any placeholder
+- Always include links from `Available Resources` section based on the criteria from the prompt
 """)
 
 
